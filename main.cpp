@@ -177,6 +177,28 @@ int main()
     Texture textureBg("textures/bg.jpg");
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
+
+    glm::vec3 viewPos = {0.0, 0.0, 15.0};
+    glm::vec3 lightPos = {1.0, 1.0, 5.0};
+
+    Shader shaderLighting("shaders/lighting.vert", "shaders/lighting.frag");
+    shaderLighting.SetUniform("lightPos", lightPos);
+    shaderLighting.SetUniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
+    shaderLighting.SetUniform("viewPos", viewPos);
+    shaderLighting.SetUniform("texture0", 0);
+
+    std::vector<VertexN> verticesN;
+    // triangle mesh with normals
+    verticesN = {
+        {{-1.0, -sqrt(3.0)/3.0, 0.0}, {0.0, 0.0}, {0.0, 0.0, 1.0}},
+        {{ 1.0, -sqrt(3.0)/3.0, 0.0}, {1.0, 0.0}, {0.0, 0.0, 1.0}},
+        {{ 0.0, 2.0 * sqrt(3.0)/3.0, 0.0}, {0.5, sqrt(3.0)/4.0}, {0.0, 0.0, 1.0}}
+    };
+    Mesh meshTriangleN(verticesN, emptyInds);
+
+    glm::vec3 triangleNPos(1.0, 1.0, 0.0);
+
+//uniform vec3 basicColor;
     
 
     // main loop
@@ -205,7 +227,7 @@ int main()
                 (float)(screenWidth) / screenHeight,
                 0.1f, 100.0f);
         // View
-        PV = translate(PV, vec3(0.0, 0.0, -15.0));
+        PV = translate(PV, -viewPos);
         // Model
         
         // background
@@ -243,9 +265,18 @@ int main()
         meshCube.Draw();
 
 
+        // triangle with lighting
+        transMat = glm::mat4(1.0);
+        transMat = glm::translate(transMat, triangleNPos +
+                static_cast<float>(std::sin(curTime) * 3.0) *
+                        glm::vec3(0.0, 1.0, 0.0));
+        shaderLighting.SetUniform("modelTransform", transMat);
+        shaderLighting.SetUniform("fullTransform", PV * transMat);
+        shaderLighting.Use();
+        textureMetal.Bind();
+        meshTriangleN.Draw();
+
         glfwSwapBuffers(window);
-
-
     }
 
     glfwDestroyWindow(window);

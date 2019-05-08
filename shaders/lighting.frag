@@ -6,7 +6,6 @@ in vec3 fragPosition;
 
 out vec4 color;
 
-//uniform vec3 basicColor;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -28,9 +27,10 @@ void main()
     vec3 viewDir = normalize(viewPos - fragPosition);
     vec3 reflectedDir = reflect(-lightDir, fragNormalN);
     float angleCos = max(dot(reflectedDir, viewDir), 0.0);
-    vec3 specularColor = 0.5 * pow(angleCos, 32) * lightColor;
+    vec3 specularColor = 0.7 * pow(angleCos, 64) * lightColor;
 
     vec3 resultColor = (ambientColor + diffuseColor + specularColor)
           * vec3(texture(texture0, fragTexCoords));
+
     color = vec4(resultColor, 1.0);
 }
