@@ -4,7 +4,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #pragma GCC diagnostic ignored "-Wtype-limits"
-#include "deps/stb_image.h"
+#include "stb_image.h"
 #pragma GCC diagnostic pop
 
 #include "Texture.h"

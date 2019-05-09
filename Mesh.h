@@ -11,8 +11,8 @@
 class Mesh
 {
 public:
-    Mesh(const std::vector<Vertex> &vertices, const std::vector<GLushort> &indices);
-    Mesh(const std::vector<VertexN> &vertices, const std::vector<GLushort> &indices);
+    Mesh(const std::vector<Vertex> &vertices);
+    Mesh(const std::vector<VertexN> &vertices);
     Mesh(const Mesh &other) = delete;
     Mesh(Mesh &&other);
     ~Mesh();
@@ -20,12 +20,10 @@ public:
     void Draw() const;
 
 private:
-
-private:
-    GLuint                                      m_vao = 0;
-    GLuint                                      m_vbo = 0;
-    GLuint                                      m_ebo = 0;
-    GLsizei                                     m_elCount;
+    GLuint m_vao = 0;
+    GLuint m_vbo = 0;
+    GLuint m_ebo = 0;
+    GLsizei m_elCount;
 };
 
 #endif

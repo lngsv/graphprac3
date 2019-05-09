@@ -1,12 +1,8 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLushort> &indices)
+Mesh::Mesh(const std::vector<Vertex> &vertices)
 {
-    if (indices.empty()) {
-        m_elCount = vertices.size();
-    } else {
-        m_elCount = indices.size();
-    }
+    m_elCount = vertices.size();
 
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
@@ -23,23 +19,12 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLushort> &ind
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
             reinterpret_cast<void *>(offsetof(Vertex, texCoords)));
 
-    if (!indices.empty()) {
-        glGenBuffers(1, &m_ebo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]),
-                indices.data(), GL_STATIC_DRAW);
-    }
-
     glBindVertexArray(0);
 }
 
-Mesh::Mesh(const std::vector<VertexN> &vertices, const std::vector<GLushort> &indices)
+Mesh::Mesh(const std::vector<VertexN> &vertices)
 {
-    if (indices.empty()) {
-        m_elCount = vertices.size();
-    } else {
-        m_elCount = indices.size();
-    }
+    m_elCount = vertices.size();
 
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
@@ -58,13 +43,6 @@ Mesh::Mesh(const std::vector<VertexN> &vertices, const std::vector<GLushort> &in
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]),
             reinterpret_cast<void *>(offsetof(VertexN, normal)));
-
-    if (!indices.empty()) {
-        glGenBuffers(1, &m_ebo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]),
-                indices.data(), GL_STATIC_DRAW);
-    }
 
     glBindVertexArray(0);
 }

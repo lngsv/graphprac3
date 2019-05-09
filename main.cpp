@@ -36,9 +36,6 @@ void debugCallback(GLenum source,
 }
 #pragma GCC diagnostic pop
 
-extern pair<vector<Vertex>, vector<GLushort>> ReadMesh(const string &path);
-
-
 int main()
 {
     if (!glfwInit())
@@ -84,7 +81,6 @@ int main()
     // Init meshes
     vector<Vertex> vertices;
     vector<VertexN> verticesN;
-    vector<GLushort> emptyInds = {};
 
     vertices = {
         {{ -1.0, -1.0, 0.0 }, {0.0, 0.0 }}, 
@@ -94,7 +90,7 @@ int main()
         {{ 1.0, -1.0, 0.0 }, {1.0, 0.0 }}, 
         {{ -1.0, -1.0, 0.0 }, {0.0, 0.0 }}
     };
-    Mesh meshSquare(vertices, emptyInds);
+    Mesh meshSquare(vertices);
 
     verticesN = {
         {{ 0.0, -1.0, 2.0 }, {}, { 0.0, -1.0, 0.0 }}, 
@@ -113,21 +109,19 @@ int main()
         {{ 0.0, -1.0, 2.0 }, {}, { -3*sqrt(3), 2.0, 3.0}}, 
         {{ -sqrt(3), -1.0, -1.0 }, {}, { -3*sqrt(3), 2.0, 3.0}},
     };
-    Mesh meshTetra(verticesN, emptyInds);
+    Mesh meshTetra(verticesN);
 
     fstream fs;
-    fs.open("cube.txt");
+    fs.open("meshes/cube.txt");
     verticesN = {};
     for (int i = 0; i < 36; ++i) {
         float vx, vy, vz, tx, ty, nx, ny, nz;
         fs >> vx >> vy >> vz >> tx >> ty >> nx >> ny >> nz;
         verticesN.push_back({vec3(vx, vy, vz), vec2(tx, ty), vec3(nx, ny, nz)});
     }
-    Mesh meshCube(verticesN, emptyInds);
+    Mesh meshCube(verticesN);
 
-    Shader shaderBasic("shaders/basic.vert", "shaders/basic.frag");
-    
-    vec3 tetraPos = {-2.0, -2.0, 2.0};
+    vec3 tetraPos = {-4.0, -2.0, 2.0};
     vec3 tetraRotAxis = normalize(vec3{-3.3, 1.2, -0.1});
     float tetraRotAngle = 0.0; // in radians
 
@@ -150,19 +144,19 @@ int main()
 
     Shader shaderLightened("shaders/lighting.vert", "shaders/lighting.frag");
     shaderLightened.SetUniform("lightPos", lightPos);
-    shaderLightened.SetUniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
+    shaderLightened.SetUniform("lightColor", vec3(1.0, 1.0, 1.0));
     shaderLightened.SetUniform("viewPos", viewPos);
     shaderLightened.SetUniform("texture0", 0);
 
-    // triangle mesh with normals
+    // triangle 
     verticesN = {
         {{-2.0, -2*sqrt(3.0)/3.0, 0.0}, {0.0, 0.0}, {0.0, 0.0, 1.0}},
         {{ 2.0, -2*sqrt(3.0)/3.0, 0.0}, {1.0, 0.0}, {0.0, 0.0, 1.0}},
         {{ 0.0, 4*sqrt(3.0)/3.0, 0.0}, {0.5, sqrt(3.0)/4.0}, {0.0, 0.0, 1.0}}
     };
-    Mesh meshTriangleN(verticesN, emptyInds);
+    Mesh meshTriangleN(verticesN);
 
-    glm::vec3 triangleNPos(1.0, 1.0, 0.0);
+    vec3 trPos(1.0, 3.0, 0.0);
 
 
     // main loop
@@ -197,35 +191,31 @@ int main()
         meshSquare.Draw();
 
         // tetra
-        shaderLightened.SetUniform("myColor", vec3(0.0, 0.6, 0.3));
+        shaderLightened.SetUniform("myColor", vec3(fabs(sin(curTime)), 0.6, 0.6));
         mat4 transMat = translate(mat4(1.0), tetraPos + (float)(sin(curTime) * 2.0) * tetraRotAxis);
         transMat = rotate(transMat, tetraRotAngle, tetraRotAxis);
         shaderLightened.SetUniform("modelTransform", transMat);
         shaderLightened.SetUniform("fullTransform", PV * transMat);
-        transMat = translate(PV, tetraPos);
-
         shaderLightened.Use();
         meshTetra.Draw();
         
         // cube
         shaderLightened.SetUniform("myColor", vec3(0.3, 0.6, 0.3));
-        transMat = translate(mat4(1.0), cubePos + (float)(sin(curTime) * 4.0) * cubeRotAxis);
+        transMat = translate(mat4(1.0), cubePos + (float)(sin(curTime) * 3.2) * cubeRotAxis);
         transMat = rotate(transMat, cubeRotAngle, cubeRotAxis);
         shaderLightened.SetUniform("modelTransform", transMat);
         shaderLightened.SetUniform("fullTransform", PV * transMat);
-
         shaderLightened.Use();
         meshCube.Draw();
 
 
-        // triangle with lighting
-        transMat = mat4(1.0);
-        transMat = translate(transMat, triangleNPos + 
-                (float)(sin(curTime) * 3.0) * vec3(0.0, 1.0, 0.0));
+        // triangle 
+        //transMat = translate(mat4(1.0), trPos);
+        transMat = translate(mat4(1.0), trPos + 
+                (float)(sin(curTime) * 3.0) * vec3(-1.0, 0.0, 0.0));
         shaderLightened.SetUniform("modelTransform", transMat);
         shaderLightened.SetUniform("fullTransform", PV * transMat);
         shaderLightened.SetUniform("myColor", vec3(0.0));
-
         shaderLightened.Use();
         textureMetal.Bind();
         meshTriangleN.Draw();
