@@ -2,6 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 #include "Shader.h"
@@ -40,8 +41,6 @@ extern pair<vector<Vertex>, vector<GLushort>> ReadMesh(const string &path);
 
 int main()
 {
-    srand(time(nullptr));
-
     if (!glfwInit())
         return -1;
 
@@ -84,19 +83,8 @@ int main()
 
     // Init meshes
     vector<Vertex> vertices;
+    vector<VertexN> verticesN;
     vector<GLushort> emptyInds = {};
-
-    // Loading mesh from file
-    //FILE *f = fopen
-
-
-    // triangle
-    vertices = {
-        {{-1.0, -sqrt(3.0)/3.0, 0.0 }, {}},
-        {{ 1.0, -sqrt(3.0)/3.0, 0.0 }, {}},
-        {{ 0.0, 2.0 * sqrt(3.0)/3.0, 0.0 }, {}}, 
-    };
-    Mesh meshTriangle(vertices, emptyInds);
 
     vertices = {
         {{ -1.0, -1.0, 0.0 }, {0.0, 0.0 }}, 
@@ -108,60 +96,40 @@ int main()
     };
     Mesh meshSquare(vertices, emptyInds);
 
-    vertices = {
-        {{ -1.0, -1.0, -1.0 },  {0.0, 0.0 }},
-        {{1.0, -1.0, -1.0 },  {1.0, 0.0 }},
-        {{1.0,  1.0, -1.0 },  {1.0, 1.0 }},
-        {{1.0,  1.0, -1.0 },  {1.0, 1.0 }},
-        {{-1.0,  1.0, -1.0 },  {0.0, 1.0 }},
-        {{-1.0, -1.0, -1.0 },  {0.0, 0.0 }},
+    verticesN = {
+        {{ 0.0, -1.0, 2.0 }, {}, { 0.0, -1.0, 0.0 }}, 
+        {{ -sqrt(3), -1.0, -1.0 }, {}, {0.0, -1.0, 0.0}}, 
+        {{ sqrt(3), -1.0, -1.0 }, {},  {0.0, -1.0, 0.0}},
 
-        {{-1.0, -1.0,  1.0 },  {0.0, 0.0 }},
-        {{1.0, -1.0,  1.0 },  {1.0, 0.0 }},
-        {{1.0,  1.0,  1.0 },  {1.0, 1.0 }},
-        {{1.0,  1.0,  1.0 },  {1.0, 1.0 }},
-        {{-1.0,  1.0,  1.0 },  {0.0, 1.0 }},
-        {{-1.0, -1.0,  1.0 },  {0.0, 0.0 }},
+        {{ 0.0, 2.0, 0.0 }, {}, { 0.0, 1.0, -3.0 }}, 
+        {{ -sqrt(3), -1.0, -1.0 }, {}, {0.0, 1.0, -3.0}}, 
+        {{ sqrt(3), -1.0, -1.0 }, {}, {0.0, 1.0, -3.0}},
 
-        {{-1.0,  1.0,  1.0 },  {1.0, 0.0 }},
-        {{-1.0,  1.0, -1.0 },  {1.0, 1.0 }},
-        {{-1.0, -1.0, -1.0 },  {0.0, 1.0 }},
-        {{-1.0, -1.0, -1.0 },  {0.0, 1.0 }},
-        {{-1.0, -1.0,  1.0 },  {0.0, 0.0 }},
-        {{-1.0,  1.0,  1.0 },  {1.0, 0.0 }},
+        {{ 0.0, 2.0, 0.0 }, {}, { 3*sqrt(3), 2.0, 3.0 }}, 
+        {{ 0.0, -1.0, 2.0 }, {}, {3*sqrt(3), 2.0, 3.0}}, 
+        {{ sqrt(3), -1.0, -1.0 }, {}, {3*sqrt(3), 2.0, 3.0}},
 
-        {{1.0,  1.0,  1.0 },  {1.0, 0.0 }},
-        {{1.0,  1.0, -1.0 },  {1.0, 1.0 }},
-        {{1.0, -1.0, -1.0 },  {0.0, 1.0 }},
-        {{1.0, -1.0, -1.0 },  {0.0, 1.0 }},
-        {{1.0, -1.0,  1.0 },  {0.0, 0.0 }},
-        {{1.0,  1.0,  1.0 },  {1.0, 0.0 }},
-
-        {{-1.0, -1.0, -1.0 },  {0.0, 1.0 }},
-        {{1.0, -1.0, -1.0 },  {1.0, 1.0 }},
-        {{1.0, -1.0,  1.0 },  {1.0, 0.0 }},
-        {{1.0, -1.0,  1.0 },  {1.0, 0.0 }},
-        {{-1.0, -1.0,  1.0 },  {0.0, 0.0 }},
-        {{-1.0, -1.0, -1.0 },  {0.0, 1.0 }},
-
-        {{-1.0,  1.0, -1.0 },  {0.0, 1.0 }},
-        {{1.0,  1.0, -1.0 },  {1.0, 1.0 }},
-        {{1.0,  1.0,  1.0 },  {1.0, 0.0 }},
-        {{1.0,  1.0,  1.0 },  {1.0, 0.0 }},
-        {{-1.0,  1.0,  1.0 },  {0.0, 0.0 }},
-        {{-1.0,  1.0, -1.0 },  {0.0, 1.0}}
+        {{ 0.0, 2.0, 0.0 }, {}, { -3*sqrt(3), 2.0, 3.0 }}, 
+        {{ 0.0, -1.0, 2.0 }, {}, { -3*sqrt(3), 2.0, 3.0}}, 
+        {{ -sqrt(3), -1.0, -1.0 }, {}, { -3*sqrt(3), 2.0, 3.0}},
     };
-    Mesh meshCube(vertices, emptyInds);
+    Mesh meshTetra(verticesN, emptyInds);
+
+    fstream fs;
+    fs.open("cube.txt");
+    verticesN = {};
+    for (int i = 0; i < 36; ++i) {
+        float vx, vy, vz, tx, ty, nx, ny, nz;
+        fs >> vx >> vy >> vz >> tx >> ty >> nx >> ny >> nz;
+        verticesN.push_back({vec3(vx, vy, vz), vec2(tx, ty), vec3(nx, ny, nz)});
+    }
+    Mesh meshCube(verticesN, emptyInds);
 
     Shader shaderBasic("shaders/basic.vert", "shaders/basic.frag");
     
-    vec3 trPos = {0.0, 0.0, 0.0};
-    vec3 trRotAxis = normalize(vec3{1.0, 0.3, 1.5});
-    float trRotAngle = 0.0; // in radians
-
-    vec3 sqPos = {-1.5, 0.0, 0.0};
-    vec3 sqRotAxis = normalize(vec3{3.3, 1.2, 0.1});
-    float sqRotAngle = 0.0; // in radians
+    vec3 tetraPos = {-2.0, -2.0, 2.0};
+    vec3 tetraRotAxis = normalize(vec3{-3.3, 1.2, -0.1});
+    float tetraRotAngle = 0.0; // in radians
 
     vec3 cubePos = {7.0, 1.0, 2.0};
     vec3 cubeRotAxis = normalize(vec3{1.0, 1.0, -1.0});
@@ -170,7 +138,6 @@ int main()
     Shader shaderTextured("shaders/textured.vert", "shaders/textured.frag");
     shaderTextured.SetUniform("tex", 0);
     Texture textureMetal("textures/metal.jpg");
-    Texture textureCmc("textures/cmc.png");
 
     Shader shaderBg("shaders/background.vert", "shaders/textured.frag");
     shaderBg.SetUniform("tex", 0);
@@ -178,28 +145,25 @@ int main()
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
 
-    glm::vec3 viewPos = {0.0, 0.0, 15.0};
-    glm::vec3 lightPos = {1.0, 1.0, 5.0};
+    vec3 viewPos = {0.0, 0.0, 15.0};
+    vec3 lightPos = {1.0, 5.0, 5.0};
 
-    Shader shaderLighting("shaders/lighting.vert", "shaders/lighting.frag");
-    shaderLighting.SetUniform("lightPos", lightPos);
-    shaderLighting.SetUniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
-    shaderLighting.SetUniform("viewPos", viewPos);
-    shaderLighting.SetUniform("texture0", 0);
+    Shader shaderLightened("shaders/lighting.vert", "shaders/lighting.frag");
+    shaderLightened.SetUniform("lightPos", lightPos);
+    shaderLightened.SetUniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
+    shaderLightened.SetUniform("viewPos", viewPos);
+    shaderLightened.SetUniform("texture0", 0);
 
-    std::vector<VertexN> verticesN;
     // triangle mesh with normals
     verticesN = {
-        {{-1.0, -sqrt(3.0)/3.0, 0.0}, {0.0, 0.0}, {0.0, 0.0, 1.0}},
-        {{ 1.0, -sqrt(3.0)/3.0, 0.0}, {1.0, 0.0}, {0.0, 0.0, 1.0}},
-        {{ 0.0, 2.0 * sqrt(3.0)/3.0, 0.0}, {0.5, sqrt(3.0)/4.0}, {0.0, 0.0, 1.0}}
+        {{-2.0, -2*sqrt(3.0)/3.0, 0.0}, {0.0, 0.0}, {0.0, 0.0, 1.0}},
+        {{ 2.0, -2*sqrt(3.0)/3.0, 0.0}, {1.0, 0.0}, {0.0, 0.0, 1.0}},
+        {{ 0.0, 4*sqrt(3.0)/3.0, 0.0}, {0.5, sqrt(3.0)/4.0}, {0.0, 0.0, 1.0}}
     };
     Mesh meshTriangleN(verticesN, emptyInds);
 
     glm::vec3 triangleNPos(1.0, 1.0, 0.0);
 
-//uniform vec3 basicColor;
-    
 
     // main loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -209,11 +173,8 @@ int main()
         curTime = glfwGetTime();
         deltaTime = curTime - prevTime;
 
-        trPos.x = sin(curTime);
-        trRotAngle += deltaTime * 2.0;
-
-        sqPos.y = sin(curTime);
-        sqRotAngle += deltaTime * 2.0;
+        tetraPos.y = sin(curTime);
+        tetraRotAngle += deltaTime * 2.0;
 
         cubePos.x = 5.0 + cos(curTime);
         cubePos.y = 0.0 + sin(curTime);
@@ -234,45 +195,38 @@ int main()
         shaderBg.Use();
         textureBg.Bind();
         meshSquare.Draw();
-    
 
-        // triangle
-        shaderBasic.SetUniform("myColor", vec4(0.3, 1.0, 0.1, 0.5));
-        mat4 transMat = translate(PV, trPos);
-        transMat = rotate(transMat, trRotAngle, trRotAxis);
-        shaderBasic.SetUniform("transformMat", transMat);
+        // tetra
+        shaderLightened.SetUniform("myColor", vec3(0.0, 0.6, 0.3));
+        mat4 transMat = translate(mat4(1.0), tetraPos + (float)(sin(curTime) * 2.0) * tetraRotAxis);
+        transMat = rotate(transMat, tetraRotAngle, tetraRotAxis);
+        shaderLightened.SetUniform("modelTransform", transMat);
+        shaderLightened.SetUniform("fullTransform", PV * transMat);
+        transMat = translate(PV, tetraPos);
 
-        shaderBasic.Use();
-        meshTriangle.Draw();
-
-        // square
-        transMat = translate(PV, sqPos);
-        transMat = rotate(transMat, sqRotAngle, sqRotAxis);
-        shaderTextured.SetUniform("transformMat", transMat);
-
-        shaderTextured.Use();
-        textureMetal.Bind();
-        meshSquare.Draw();
+        shaderLightened.Use();
+        meshTetra.Draw();
         
         // cube
-        //shaderBasic.SetUniform("myColor", vec4(1.0, 1.0, 1.0, 1.0));
-        transMat = translate(PV, cubePos);
+        shaderLightened.SetUniform("myColor", vec3(0.3, 0.6, 0.3));
+        transMat = translate(mat4(1.0), cubePos + (float)(sin(curTime) * 4.0) * cubeRotAxis);
         transMat = rotate(transMat, cubeRotAngle, cubeRotAxis);
-        shaderTextured.SetUniform("transformMat", transMat);
+        shaderLightened.SetUniform("modelTransform", transMat);
+        shaderLightened.SetUniform("fullTransform", PV * transMat);
 
-        shaderTextured.Use();
-        textureCmc.Bind();
+        shaderLightened.Use();
         meshCube.Draw();
 
 
         // triangle with lighting
-        transMat = glm::mat4(1.0);
-        transMat = glm::translate(transMat, triangleNPos +
-                static_cast<float>(std::sin(curTime) * 3.0) *
-                        glm::vec3(0.0, 1.0, 0.0));
-        shaderLighting.SetUniform("modelTransform", transMat);
-        shaderLighting.SetUniform("fullTransform", PV * transMat);
-        shaderLighting.Use();
+        transMat = mat4(1.0);
+        transMat = translate(transMat, triangleNPos + 
+                (float)(sin(curTime) * 3.0) * vec3(0.0, 1.0, 0.0));
+        shaderLightened.SetUniform("modelTransform", transMat);
+        shaderLightened.SetUniform("fullTransform", PV * transMat);
+        shaderLightened.SetUniform("myColor", vec3(0.0));
+
+        shaderLightened.Use();
         textureMetal.Bind();
         meshTriangleN.Draw();
 

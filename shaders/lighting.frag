@@ -9,6 +9,7 @@ out vec4 color;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform vec3 myColor;
 
 uniform sampler2D texture0;
 
@@ -29,8 +30,14 @@ void main()
     float angleCos = max(dot(reflectedDir, viewDir), 0.0);
     vec3 specularColor = 0.7 * pow(angleCos, 64) * lightColor;
 
-    vec3 resultColor = (ambientColor + diffuseColor + specularColor)
-          * vec3(texture(texture0, fragTexCoords));
+    vec3 resultColor;
+    if (myColor == vec3(0.0f, 0.0f, 0.0f)) {
+        resultColor = (ambientColor + diffuseColor + specularColor)
+                * vec3(texture(texture0, fragTexCoords));
+    } else {
+        resultColor = (ambientColor + diffuseColor + specularColor)
+                * myColor;
+    }
 
     color = vec4(resultColor, 1.0);
 }
